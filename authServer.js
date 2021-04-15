@@ -14,10 +14,10 @@ app.post('/token', (req, res) => {
     if(refreshToken == null) return res.sendStatus(401)
     if(!refreshTokens.includes(refreshToken)) return res.sendStatus(403)
 
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, res) => {
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, user) => {
         if(err) return res.sendStatus(403)
         const accessToken = generateAccessToken({name: user.name})
-        res.json(accessToken)
+        res.json({accessToken: accessToken })
     })
 })
 
@@ -31,7 +31,7 @@ app.post('/login', (req, res) => {
     const user = { name: username };
 
     const accessToken = generateAccessToken(user)
-    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN)
+    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN) // jwt.sign(user, process.env.REFRESH_TOKEN + user.password) for more security on refresh tokens
     refreshTokens.push(refreshToken)
     res.json({accessToken: accessToken, refreshToken: refreshToken})
 })
